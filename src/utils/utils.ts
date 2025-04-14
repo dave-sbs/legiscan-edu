@@ -17,18 +17,7 @@ export const TRANSMISSION_TYPE = {
 };
 
 export const EXAMPLE_SEARCH_TERMS = [
-  'A honda or BMW with at least 200hp, rear wheel drive, from 20K to 50K, must be newer than 2014',
-  'At least 200hp, must be of American car brands',
-  'Newest sedans, V8, above 300hp, best gas mileage',
-  'Show me the most powerful car you have',
-  'Give me the latest cars',
-  'Diesel SUV, > 200hp',
-  "I don't know how to drive a manual",
-  'Electric cars under 30K',
-  'High performance Italian cars, above 700hp',
-  'Luxury car without premium fuel',
-  "Luxury hybrid car without premium fuel that's not an audi or a cadillac",
-  'Hybrid cars with at least a city mileage of 25 and highway mileage of 40',
+  'Change the default options in utils.ts',
 ];
 
 export const TYPESENSE_PER_PAGE = 12;

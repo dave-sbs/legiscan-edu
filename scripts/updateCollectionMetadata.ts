@@ -2,7 +2,7 @@ import Typesense from 'typesense';
 import 'dotenv/config';
 
 const COLLECTION_NAME =
-  process.env.NEXT_PUBLIC_TYPESENSE_COLLECTION_NAME || 'cars';
+  process.env.NEXT_PUBLIC_TYPESENSE_COLLECTION_NAME || 'edutest';
 
 (async () => {
   console.log('Connecting to typesense server...');
@@ -33,7 +33,7 @@ const COLLECTION_NAME =
   // }
   await typesense.collections(COLLECTION_NAME).update({
     metadata: {
-      msrp: 'in USD',
+      bill_number: 'in TX',
     },
   });
 

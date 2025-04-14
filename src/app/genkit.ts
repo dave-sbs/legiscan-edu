@@ -27,7 +27,7 @@ const ai = genkit({
 // Provide additional field description using collection metadata
 async function getCollectionProperties() {
   const collection = await typesense({ isServer: true })
-    .collections(clientEnv.TYPESENSE_COLLECTION_NAME)
+    .collections('edutest')
     .retrieve();
   const facetableFields: CollectionFieldSchema[] = [];
   const rows: string[] = [];
@@ -95,15 +95,15 @@ const generateTypesenseQuery = ai.defineFlow(
           // topP: 1,
         },
         system:      // prettier-ignore
-      `You are assisting a user in searching for cars. Convert their query into the appropriate Typesense query format based on the instructions below.
+      `You are assisting a user in searching for education bills. Convert their query into the appropriate Typesense query format based on the instructions below.
 
 ### Typesense Query Syntax ###
 
 ## Filtering ##
 
 Matching values: {fieldName}: followed by a string value or an array of string values each separated by a comma. Enclose the string value with backticks if it contains parentheses. Examples:
-- model:prius
-- make:[BMW,Nissan] returns cars that are manufactured by BMW OR Nissan.
+- metadata_tags:Special Education
+- state:[TX,CA] returns bills from Texas OR California.
 - fuel_type:\`premium unleaded (required)\`
 
 
@@ -142,7 +142,7 @@ Sorting hints:
   - When a user says something like "powerful", sort by engine_hp.
   - When a user says something like "latest", sort by year.
 
-## Car properties ##
+## Bill properties ##
 | Name | Data Type | Filter | Sort | Enum Values | Description |
 |------|-----------|--------|------|-------------|-------------|
 ${await getCachedCollectionProperties()}

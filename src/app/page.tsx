@@ -1,10 +1,10 @@
 'use client';
 import { callGenerateTypesenseQuery } from '@/app/genkit';
-import CarList from '@/components/CarList';
+import EduTestList from '@/components/CarList';
 import ExampleSearchTerms from '@/components/ExampleSearchTerms';
 import Heading from '@/components/Heading';
 import { typesense } from '@/lib/typesense';
-import { _CarSchemaResponse, _TypesenseQuery } from '@/schemas/typesense';
+import { _EduTestSchemaResponse, _TypesenseQuery } from '@/schemas/typesense';
 import { Suspense, useEffect, useState } from 'react';
 import { SearchResponse } from 'typesense/lib/Typesense/Documents';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -42,7 +42,7 @@ function Search() {
   const [queryJsonString, setQueryJsonString] = useState('');
   const [data, setData] = useState<{
     params: _TypesenseQuery;
-    searchResponse: SearchResponse<_CarSchemaResponse>;
+    searchResponse: SearchResponse<_EduTestSchemaResponse>;
   }>();
 
   const found = data?.searchResponse.found || 0;
@@ -69,11 +69,11 @@ function Search() {
       };
 
       const searchResponse = await typesense()
-        .collections<_CarSchemaResponse>(clientEnv.TYPESENSE_COLLECTION_NAME)
+        .collections('edutest')
         .documents()
         .search({
           ...params,
-          query_by: 'make,model,market_category',
+          query_by: 'title,description,metadata_tags',
           per_page: TYPESENSE_PER_PAGE,
         });
 
@@ -132,9 +132,9 @@ function Search() {
           <div className='self-start mb-2'>
             Found {found} {found > 1 ? 'results' : 'result'}.
           </div>
-          <CarList
+          <EduTestList
             initialData={{
-              data: data.searchResponse.hits,
+              data: (data.searchResponse.hits || []).map((hit) => ({ document: hit.document })),
               nextPage,
             }}
             queryKey={queryJsonString}

@@ -3,8 +3,8 @@ import 'dotenv/config';
 import fs from 'fs/promises';
 import { resolve } from 'path';
 
-const COLLECTION_NAME = 'cars';
-const PATH_TO_DATASET = './scripts/data/cars.jsonl';
+const COLLECTION_NAME = 'edutest';
+const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
 
 (async () => {
   console.log('Connecting to typesense server...');
@@ -37,22 +37,16 @@ const PATH_TO_DATASET = './scripts/data/cars.jsonl';
   await typesense.collections().create({
     name: COLLECTION_NAME,
     fields: [
-      { name: 'make', type: 'string', facet: true },
-      { name: 'model', type: 'string', facet: true },
-      { name: 'year', type: 'int32' },
-      { name: 'engine_fuel_type', type: 'string', facet: true },
-      { name: 'engine_hp', type: 'float' },
-      { name: 'engine_cylinders', type: 'int32' },
-      { name: 'transmission_type', type: 'string', facet: true },
-      { name: 'driven_wheels', type: 'string', facet: true },
-      { name: 'number_of_doors', type: 'int32' },
-      { name: 'market_category', type: 'string[]', facet: true },
-      { name: 'vehicle_size', type: 'string', facet: true },
-      { name: 'vehicle_style', type: 'string', facet: true },
-      { name: 'highway_mpg', type: 'int32' },
-      { name: 'city_mpg', type: 'int32' },
-      { name: 'popularity', type: 'int32' },
-      { name: 'msrp', type: 'int32' },
+      { name: 'title', type: 'string' },
+      { name: 'description', type: 'string' },
+      { name: 'metadata_tags', type: 'string[]', facet: true },
+      { name: 'state', type: 'string', facet: true },
+      { name: 'bill_number', type: 'string', facet: true },
+      { name: 'start_date', type: 'string' },
+      { name: 'latest_update', type: 'string' },
+      { name: 'sponsors', type: 'string[]', facet: true },
+      { name: 'state_link', type: 'string' },
+      { name: 'url', type: 'string' },
     ],
   });
 

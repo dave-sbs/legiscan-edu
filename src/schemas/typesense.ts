@@ -20,6 +20,23 @@ export const CarSchema = z.object({
   msrp: z.number(),
 });
 
+// Schema for eduTest.jsonl
+export const EduTestSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  metadata_tags: z.array(z.string()),
+  state: z.string(),
+  bill_number: z.string(),
+  start_date: z.string(), // ISO date string
+  latest_update: z.string(), // ISO date string
+  sponsors: z.array(z.string()),
+  state_link: z.string(),
+  url: z.string(),
+});
+
+export type _EduTestSchemaResponse = z.infer<typeof EduTestSchema>;
+
+
 export const TypesenseQuerySchema = z
   .object({
     query: z.string().describe('a full-text search query'),
