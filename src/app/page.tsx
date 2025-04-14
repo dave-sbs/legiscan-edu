@@ -69,7 +69,7 @@ function Search() {
       };
 
       const searchResponse = await typesense()
-        .collections('edutest')
+        .collections<_EduTestSchemaResponse>('edutest')
         .documents()
         .search({
           ...params,
