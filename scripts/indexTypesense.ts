@@ -39,10 +39,10 @@ const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
     fields: [
       { name: 'title', type: 'string' },
       { name: 'description', type: 'string' },
-      { name: 'metadata_tags', type: 'string[]', facet: true },
+      { name: 'metadata_tags', type: 'string[]'},
       { name: 'state', type: 'string', facet: true },
       { name: 'bill_number', type: 'string', facet: true },
-      { name: 'start_date', type: 'string' },
+      { name: 'start_date', type: 'string', facet: true},
       { name: 'latest_update', type: 'string' },
       { name: 'sponsors', type: 'string[]', facet: true },
       { name: 'state_link', type: 'string' },

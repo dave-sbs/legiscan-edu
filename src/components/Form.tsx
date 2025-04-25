@@ -19,11 +19,12 @@ export default function Form({ q }: { q: string }) {
       className='w-full flex gap-2.5 mb-4'
     >
       <input
-        className='flex-1 px-3 border-2 border-gray-700 rounded-lg placeholder:font-light text-sm'
+        className='flex-1 px-4 py-3 border-2 border-gray-700 rounded-lg placeholder:font-light text-base shadow-md focus:outline-none focus:border-blue-600 transition'
         type='text'
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Type in the car's specification, e.g. newest manual Ford, V6, under $50K..."
+        placeholder="Search government policies, documents, laws..."
+        aria-label="Search government information"
       />
       <button
         className='bg-neutral-900 aspect-square w-10 grid place-content-center rounded-lg hover:bg-neutral-800 transition'

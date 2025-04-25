@@ -1,53 +1,27 @@
 import { _EduTestSchemaResponse } from '@/schemas/typesense';
 
-export default function BillCardItem({ bill }: { bill: _EduTestSchemaResponse }) {
+export default function DocumentCardItem({ document }: { document: _EduTestSchemaResponse }) {
+  const policyArea = document.metadata_tags && document.metadata_tags.length > 0 ? document.metadata_tags[0] : null;
   return (
-    <li className="border-2 border-gray-700 rounded-xl py-4 px-5 flex flex-col gap-2 justify-between">
+    <li className="border border-gray-300 rounded-xl px-6 pt-4 pb-1 bg-white flex flex-col justify-between shadow-sm max-w-3xl w-full">
       <div>
-        <div className="text-xs mb-0.5 flex items-center gap-1.5">
-          <span className="font-semibold">{bill.state}</span>
-          <span className="text-[10px]">|</span>
-          <span>Bill #{bill.bill_number}</span>
-        </div>
-        <h2 className="font-bold text-lg mb-1">
-          {bill.title}
+        <h2 className="font-bold text-2xl mb-2 text-gray-900 truncate" title={document.title}>
+          {document.title}
         </h2>
-        <div className="text-sm text-muted-foreground mb-2">
-          {bill.description}
+        <div className="text-base text-gray-700 mb-4 line-clamp-2">
+          {document.description}
         </div>
-        <div className="flex flex-wrap gap-1.5 text-xs mb-2">
-          {bill.metadata_tags?.map((tag) => (
-            <span key={tag} className="bg-gray-200 px-2 py-0.5 rounded-full text-gray-700">
-              {tag}
+        
+        {policyArea && (
+          <div className="mt-2 mb-3 flex flex-row justify-between">
+            <span className="inline-flex items-center bg-gray-100 border border-gray-200 text-gray-700 rounded-md px-3 py-1 text-sm">
+              <span className="text-gray-500 mr-1">policy area:</span>
+              <span className="font-medium">{policyArea}</span>
             </span>
-          ))}
-        </div>
-        <div className="flex flex-col gap-1 text-xs text-gray-500 mb-2">
-          <span><b>Sponsors:</b> {bill.sponsors?.join(', ') || 'N/A'}</span>
-          <span><b>Introduced:</b> {bill.start_date || 'N/A'}</span>
-          <span><b>Latest Update:</b> {bill.latest_update || 'N/A'}</span>
-        </div>
-      </div>
-      <div className="flex gap-2 mt-2">
-        {bill.state_link && (
-          <a
-            href={bill.state_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs underline text-blue-700 hover:text-blue-900"
-          >
-            State Bill Page
-          </a>
-        )}
-        {bill.url && (
-          <a
-            href={bill.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs underline text-blue-700 hover:text-blue-900"
-          >
-            Source
-          </a>
+              <div className="text-blue-600 text-sm font-medium py-1 hover:underline">
+                Learn More →
+              </div>
+          </div>
         )}
       </div>
     </li>

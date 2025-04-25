@@ -7,8 +7,8 @@ import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500'] });
 
 export const metadata: Metadata = {
-  title: 'Cars search | Typesense',
-  description: 'Easily search for cars using AI, powered by Genkit & Typesense',
+  title: 'Sporos',
+  description: 'Unified Government Information Database Search Platform',
 };
 
 export default function RootLayout({

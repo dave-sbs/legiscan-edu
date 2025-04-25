@@ -17,7 +17,8 @@ export const TRANSMISSION_TYPE = {
 };
 
 export const EXAMPLE_SEARCH_TERMS = [
-  'Change the default options in utils.ts',
+  'Education bills in TX',
+  'Newly Introduced education laws in CA'
 ];
 
 export const TYPESENSE_PER_PAGE = 12;

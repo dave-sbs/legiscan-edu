@@ -1,7 +1,6 @@
 'use client';
 import { callGenerateTypesenseQuery } from '@/app/genkit';
-import EduTestList from '@/components/CarList';
-import ExampleSearchTerms from '@/components/ExampleSearchTerms';
+import DocumentList from '@/components/CarList'; // Will rename CarList to DocumentList in a follow-up step
 import Heading from '@/components/Heading';
 import { typesense } from '@/lib/typesense';
 import { _EduTestSchemaResponse, _TypesenseQuery } from '@/schemas/typesense';
@@ -14,17 +13,25 @@ import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { TYPESENSE_PER_PAGE } from '@/utils/utils';
 import Header from '@/components/Header';
-import { clientEnv } from '@/utils/env';
 import React from 'react';
 import { RequestMalformed } from 'typesense/lib/Typesense/Errors';
+
+import ExampleSearchTerms from '@/components/ExampleSearchTerms';
+
 export default function Home() {
   return (
     <main className='flex flex-col items-center px-2 py-10 max-w-screen-lg m-auto font-medium'>
       <Header />
       <Heading />
+      {/* <Form q={''} /> */}
       <Suspense fallback={<LoaderSVG />}>
         <Search />
       </Suspense>
+      <div className="w-full flex justify-center mt-6 mb-12">
+        <div className="bg-blue-600 text-white text-xl md:text-2xl font-bold px-8 py-4 rounded-xl shadow-md">
+          4,000+ <span className="font-normal text-base align-middle">official documents at your fingertips</span>
+        </div>
+      </div>
     </main>
   );
 }
@@ -48,7 +55,7 @@ function Search() {
   const found = data?.searchResponse.found || 0;
   const nextPage = 1 * TYPESENSE_PER_PAGE < found ? 2 : null;
 
-  async function getCars(q: string) {
+  async function getDocuments(q: string) {
     setLoadingState('generating');
     toast({}).dismiss();
 
@@ -100,7 +107,7 @@ function Search() {
       description: msg,
       duration: 5000,
       action: (
-        <ToastAction onClick={() => getCars(q)} altText='Try again'>
+        <ToastAction onClick={() => getDocuments(q)} altText='Try again'>
           Try again
         </ToastAction>
       ),
@@ -109,7 +116,7 @@ function Search() {
   useEffect(() => {
     setData(undefined);
     setQueryJsonString('');
-    q && getCars(q);
+    q && getDocuments(q);
   }, [q]);
 
   const render = () => {
@@ -132,7 +139,7 @@ function Search() {
           <div className='self-start mb-2'>
             Found {found} {found > 1 ? 'results' : 'result'}.
           </div>
-          <EduTestList
+          <DocumentList
             initialData={{
               data: (data.searchResponse.hits || []).map((hit) => ({ document: hit.document })),
               nextPage,
