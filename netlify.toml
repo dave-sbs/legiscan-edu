@@ -3,13 +3,6 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NEXT_PUBLIC_TYPESENSE_URL = "https://93m87w0g5cpi4blep-1.a1.typesense.net"
-  NEXT_PUBLIC_TYPESENSE_SEARCH_ONLY_API_KEY = "GfcRpefM3yIMIHNsXwIO0DaalcIqGoVW"
-  NEXT_PUBLIC_TYPESENSE_COLLECTION_NAME = "edutest"
-  TYPESENSE_MAX_FACET_VALUES = "50"
-  TYPESENSE_ADMIN_API_KEY = "u2tz1td1gdjbyttuBUcFQyPhCLY6tgae"
-  GOOGLE_GENAI_API_KEY = "AIzaSyAr3dH4J8qz_M6K0oO38Wdzy-ow_oDB6sA"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
