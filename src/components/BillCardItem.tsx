@@ -12,17 +12,27 @@ export default function DocumentCardItem({ document }: { document: _EduTestSchem
           {document.description}
         </div>
         
-        {policyArea && (
-          <div className="mt-2 mb-3 flex flex-row justify-between">
-            <span className="inline-flex items-center bg-gray-100 border border-gray-200 text-gray-700 rounded-md px-3 py-1 text-sm">
-              <span className="text-gray-500 mr-1">policy area:</span>
-              <span className="font-medium">{policyArea}</span>
-            </span>
-              <div className="text-blue-600 text-sm font-medium py-1 hover:underline">
-                Learn More →
-              </div>
+        <div className="mt-2 mb-3 flex flex-row justify-between">
+          {(document.state || policyArea) && (
+            <div className="flex flex-row gap-2">
+              {document.state && (
+                <span className="inline-flex items-center bg-gray-100 border border-gray-200 text-gray-700 rounded-md px-3 py-1 text-sm">
+                  <span className="text-gray-500 mr-1">state:</span>
+                  <span className="font-medium">{document.state}</span>
+                </span>
+              )}
+              {policyArea && (
+                <span className="inline-flex items-center bg-gray-100 border border-gray-200 text-gray-700 rounded-md px-3 py-1 text-sm">
+                  <span className="text-gray-500 mr-1">policy area:</span>
+                  <span className="font-medium">{policyArea}</span>
+                </span>
+              )}
+            </div>
+          )}
+          <div className="text-blue-600 text-sm font-medium py-1 hover:underline">
+            Learn More →
           </div>
-        )}
+        </div>
       </div>
     </li>
   );
