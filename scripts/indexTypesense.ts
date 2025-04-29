@@ -1,8 +1,20 @@
+/**
+ * This script is used to index the dataset into Typesense.
+ * 
+ * If FORCE_REINDEX is set to true, the script will delete the existing collection and create a new one.
+ * 
+ * If FORCE_REINDEX is set to false, the script will check if the collection exists and cancel the operation if it does.
+ * 
+ * Currently, we are not doing embedded indexing. The next step will be to embed some of the columns to create a RAG functionality.
+ * 
+ */
+
 import Typesense from 'typesense';
 import 'dotenv/config';
 import fs from 'fs/promises';
 import { resolve } from 'path';
 
+// Establish the collection name and path to the dataset
 const COLLECTION_NAME = 'edutest';
 const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
 
@@ -19,6 +31,7 @@ const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
     connectionTimeoutSeconds: 60 * 60,
   });
 
+  // Check if collection exists
   try {
     await typesense.collections(COLLECTION_NAME).retrieve();
     console.log(`Found existing collection of ${COLLECTION_NAME}`);
@@ -26,6 +39,7 @@ const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
     if (process.env.FORCE_REINDEX !== 'true')
       return console.log('FORCE_REINDEX = false. Canceling operation...');
 
+    // If FORCE_REINDEX is true, delete the existing collection
     console.log('Deleting collection');
     await typesense.collections(COLLECTION_NAME).delete();
   } catch (err) {
@@ -34,6 +48,7 @@ const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
 
   console.log('Creating schema...');
 
+  // Create new collection
   await typesense.collections().create({
     name: COLLECTION_NAME,
     fields: [

@@ -1,3 +1,9 @@
+/**
+ * This script is used to update the collection metadata.
+ * 
+ * Unsure if this is the correct way to update collection metadata. Read more 
+ */
+
 import Typesense from 'typesense';
 import 'dotenv/config';
 
@@ -27,10 +33,7 @@ const COLLECTION_NAME =
 
   console.log('Updating collection metadata...');
 
-  // schema for field description
-  // {
-  //   fieldName: "fieldDescription"
-  // }
+  // Unsure if this is the correct way to update collection metadata. Read more 
   await typesense.collections(COLLECTION_NAME).update({
     metadata: {
       bill_number: 'in TX',

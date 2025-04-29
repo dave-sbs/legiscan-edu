@@ -21,11 +21,12 @@ import ExampleSearchTerms from '@/components/ExampleSearchTerms';
 export default function Home() {
   return (
     <main className='flex flex-col items-center px-2 py-10 max-w-screen-lg m-auto font-medium'>
-      <Header />
-      <Heading />
+      <div className='text-5xl text-center'>
+        Sporos
+      </div>
       <div className="w-full flex justify-center mt-6 mb-12">
         <div className="bg-blue-600 text-white text-xl md:text-2xl font-bold px-8 py-4 rounded-xl shadow-md">
-          4,000+ <span className="font-normal text-base align-middle">official documents at your fingertips</span>
+          60,000+ <span className="font-normal text-base align-middle">official documents at your fingertips</span>
         </div>
       </div>
       {/* <Form q={''} /> */}
