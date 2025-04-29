@@ -1,44 +1,74 @@
-import { _CarSchemaResponse, _TypesenseQuery, _EduTestSchemaResponse } from '@/schemas/typesense';
+'use server';
+
 import { typesense } from './typesense';
-import { clientEnv } from '@/utils/env';
+import { SearchResponseHit } from 'typesense/lib/Typesense/Documents';
 
-export type _carsData = Awaited<ReturnType<ReturnType<typeof fetchCars>>>;
-export type _billsData = Awaited<ReturnType<ReturnType<typeof fetchBills>>>;
-
-export default function fetchCars(searchParams: _TypesenseQuery) {
-  return async ({ pageParam }: { pageParam: number }) => {
-    const res = await typesense()
-      .collections<_CarSchemaResponse>(clientEnv.TYPESENSE_COLLECTION_NAME)
-      .documents()
-      .search({
-        ...searchParams,
-        query_by: 'make,model,market_category',
-        per_page: 12,
-      });
-    const { per_page = 0 } = res.request_params;
-
-    return {
-      data: res.hits ?? [],
-      nextPage: pageParam * per_page < res.found ? pageParam + 1 : null,
-    };
-  };
+export interface Message {
+  sender: 'user' | 'ai';
+  message: string;
+  isLoading?: boolean;
+  sources: {
+    title: string;
+    excerpt: string;
+    url: string;
+  }[];
 }
 
-export function fetchBills(searchParams: _TypesenseQuery) {
-  return async ({ pageParam }: { pageParam: number }) => {
-    const res = await typesense()
-      .collections<_EduTestSchemaResponse>('edutest')
-      .documents()
-      .search({
-        ...searchParams,
-        query_by: 'title,description,metadata_tags',
-        per_page: 12,
-      });
-    const { per_page = 0 } = res.request_params;
+interface ResponseDocument {
+  title: string;
+  description: string;
+  url: string;
+}
 
-    return {
-      data: res.hits ?? [],
-      nextPage: pageParam * per_page < res.found ? pageParam + 1 : null,
-    };
+function hitsToSources(
+  hits: SearchResponseHit<ResponseDocument>[]
+): Message['sources'] {
+  return hits.slice(0, 3).map((hit) => ({
+    title: hit.document.title,
+    excerpt: hit.document.description
+      .split('\n')
+      .slice(1, 10)
+      .join('\n')
+      .slice(0, 100),
+    url: hit.document.url,
+  }));
+}
+
+export async function chat(formData: FormData) {
+  const conversationId = formData.get('conversation_id');
+  const message = formData.get('message');
+  if (typeof message !== 'string') return;
+
+  const conversationModelName = 'gpt-4o-mini'
+
+  let response = await typesense()
+    .collections<ResponseDocument>('eduTestRAG')
+    .documents()
+    .search({
+      q: message,
+      query_by: 'embedding',
+      exclude_fields: 'embedding',
+      conversation_model_id: conversationModelName,
+      conversation: true,
+      conversation_id:
+        typeof conversationId === 'string' ? conversationId : undefined,
+    });
+
+  // In edge runtime, response is a JSON string
+  if (typeof response === "string") {
+    response = JSON.parse(response);
+  }
+
+  return {
+    id: response?.conversation?.conversation_id || 'Could not find conversation_id in response.',
+    message: response?.conversation?.answer || 'Could not find answer in response.',
+    sources: hitsToSources(response?.hits ?? []),
+    response: response
   };
 }
+  
+
+
+
+
+
