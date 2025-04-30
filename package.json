@@ -7,7 +7,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start:typesense": "docker compose up",
-    "index:typesense": "npx tsx ./scripts/indexInTypesense.ts",
+    "index:typesense": "npx tsx ./scripts/indexInTypesense.ts"
   },
   "name": "gar",
   "version": "0.1.0",
