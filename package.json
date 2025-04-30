@@ -2,13 +2,12 @@
   "main": "lib/index.js",
   "scripts": {
     "start": "next start",
-    "build": "npm run updateMetadata:typesense && next build",
+    "build": "next build",
     "build:watch": "tsc --watch",
     "dev": "next dev",
     "lint": "next lint",
     "start:typesense": "docker compose up",
     "index:typesense": "npx tsx ./scripts/indexInTypesense.ts",
-    "updateMetadata:typesense": "npx tsx ./scripts/updateCollectionMetadata.ts"
   },
   "name": "gar",
   "version": "0.1.0",
