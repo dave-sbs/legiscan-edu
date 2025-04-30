@@ -28,6 +28,8 @@
 
 import Typesense from 'typesense';
 import 'dotenv/config';
+import * as fs from 'fs';
+import * as readline from 'readline';
 
 // Establish the collection name and path to the dataset
 const COLLECTION_NAME = 'edutestRAG';
@@ -53,7 +55,7 @@ async function createDataCollection(dataCollectionName: string) {
 
   // Create new collection
   await typesense.collections().create({
-    name: COLLECTION_NAME,
+    name: dataCollectionName,
     fields: [
       { name: 'title', type: 'string' },
       { name: 'description', type: 'string' },
@@ -67,15 +69,46 @@ async function createDataCollection(dataCollectionName: string) {
         embed: {
           from: ['title', 'description', 'state'],
           model_config: {
-            model_name: 'ts/snowflake-arctic-embed-m',
+            model_name: "openai/text-embedding-3-small",
+            api_key: process.env.OPENAI_API_KEY
           },
         },
       },
     ],
   });
 
-  let results = await typesense.collections(COLLECTION_NAME).documents().import(PATH_TO_DATASET);
-  console.log(results);
+  // Read and parse the JSONL file line by line
+  try {
+    const documents: any[] = [];
+    const fileStream = fs.createReadStream(PATH_TO_DATASET);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    for await (const line of rl) {
+      if (line.trim()) {
+        try {
+          const document = JSON.parse(line);
+          documents.push(document);
+        } catch (err) {
+          console.error(`Error parsing line: ${line}`, err);
+        }
+      }
+    }
+
+    console.log(`Successfully parsed ${documents.length} documents`);
+    
+    // Import the parsed documents
+    if (documents.length > 0) {
+      const results = await typesense.collections(dataCollectionName).documents().import(documents);
+      console.log(results);
+    } else {
+      console.error('No documents to import');
+    }
+  } catch (err) {
+    console.error('Error reading or importing data:', err);
+  }
 }
 
 async function createConversationHistoryCollection(conversationStoreCollectionName: string) {
@@ -119,7 +152,7 @@ async function indexInTypesense() {
   let dataCollectionName = COLLECTION_NAME;
   const dataCollectionExists = await typesense.collections(dataCollectionName).exists();
   if (dataCollectionExists && process.env.FORCE_REINDEX === 'true') {
-    console.log('Deleting existing data collection')
+    console.log(`Collection ${dataCollectionName} already exists, so deleting it`)
     await typesense.collections(dataCollectionName).delete();
     await createDataCollection(dataCollectionName);
   } else if (!dataCollectionExists) {
@@ -159,10 +192,9 @@ async function indexInTypesense() {
           "You are an assistant for question-answering like a government information analyst and specialist. You can only make conversations based on the provided context. If a response cannot be formed strictly using the context, politely say you don't have knowledge about that topic. Do not answer questions that are not strictly on the topic of the government related documents found in the store.",
       history_collection: conversationHistoryCollectionName,
 
-      /*** OpenAI gpt-4-turbo ***/
       model_name: 'openai/gpt-4o-mini',
       max_bytes: 16384,
-      api_key: process.env.OPENAI_API_KEY ?? '',
+      api_key: process.env.OPENAI_API_KEY
     }
     results = await typesense.conversations().models().create(modelCreateParameters);
   }
