@@ -24,31 +24,41 @@
   //     { name: 'url', type: 'string' },
   //   ],
   // });
+
+
+  /**
+ * This script is used to index the dataset into Typesense.
+ * 
+ * If FORCE_REINDEX is set to true, the script will delete the existing collection and create a new one.
+ * 
+ * If FORCE_REINDEX is set to false, the script will check if the collection exists and cancel the operation if it does.
+ * 
+ * Currently, we are not doing embedded indexing. The next step will be to embed some of the columns to create a RAG functionality.
+ * 
  */
+
 
 import Typesense from 'typesense';
 import 'dotenv/config';
-import * as fs from 'fs';
-import * as readline from 'readline';
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
 // Establish the collection name and path to the dataset
-const COLLECTION_NAME = 'edutestRAG';
-const CONVERSATION_COLLECTION_NAME = 'eduRAG-conversation-store';
+const COLLECTION_NAME = 'billChat';
+const CONVERSATION_COLLECTION_NAME = 'billChat-conversation-store';
 const PATH_TO_DATASET = './scripts/data/eduTest.jsonl';
 
 const typesense = new Typesense.Client({
+  apiKey: process.env.TYPESENSE_ADMIN_API_KEY || 'xyz',
   nodes: [
     {
-      host: process.env.TYPESENSE_HOST ?? 'localhost',
-      port: Number(process.env.TYPESENSE_PORT ?? 8108),
-      protocol: process.env.TYPESENSE_PROTOCOL ?? 'http',
+      url: process.env.NEXT_PUBLIC_TYPESENSE_URL || 'http://localhost:8108',
     },
-  ],
-  apiKey: process.env.TYPESENSE_ADMIN_API_KEY ?? '',
-  // 15 minutes
-  connectionTimeoutSeconds: 15 * 60,
-  // logLevel: 'debug',
+],
+connectionTimeoutSeconds: 60 * 60,
 });
+
+
 
 async function createDataCollection(dataCollectionName: string) {
   console.log('Creating data collection')
@@ -77,37 +87,22 @@ async function createDataCollection(dataCollectionName: string) {
     ],
   });
 
-  // Read and parse the JSONL file line by line
+  console.log('Indexing data')
+
+  const dataset = await readFile(
+    resolve(resolve(), PATH_TO_DATASET),
+    'utf-8'
+  );
+
   try {
-    const documents: any[] = [];
-    const fileStream = fs.createReadStream(PATH_TO_DATASET);
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
+    const returnData = await typesense
+      .collections(dataCollectionName)
+      .documents()
+      .import(dataset);
 
-    for await (const line of rl) {
-      if (line.trim()) {
-        try {
-          const document = JSON.parse(line);
-          documents.push(document);
-        } catch (err) {
-          console.error(`Error parsing line: ${line}`, err);
-        }
-      }
-    }
-
-    console.log(`Successfully parsed ${documents.length} documents`);
-    
-    // Import the parsed documents
-    if (documents.length > 0) {
-      const results = await typesense.collections(dataCollectionName).documents().import(documents);
-      console.log(results);
-    } else {
-      console.error('No documents to import');
-    }
-  } catch (err) {
-    console.error('Error reading or importing data:', err);
+    console.log('Return data: ', returnData);
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -145,28 +140,44 @@ async function createConversationHistoryCollection(conversationStoreCollectionNa
   console.log(results);
 }
 
+
 async function indexInTypesense() {
   let results;
 
   // Create the collection that will store the data we want to ask questions on
   let dataCollectionName = COLLECTION_NAME;
   const dataCollectionExists = await typesense.collections(dataCollectionName).exists();
-  if (dataCollectionExists && process.env.FORCE_REINDEX === 'true') {
+
+  if (dataCollectionExists){
+    if (process.env.FORCE_REINDEX !== 'true') {
+      console.log('FORCE_REINDEX = false. Canceling operation...');
+      return;
+    }
+
+    // If FORCE_REINDEX is true, delete the existing collection and recreate it
     console.log(`Collection ${dataCollectionName} already exists, so deleting it`)
     await typesense.collections(dataCollectionName).delete();
     await createDataCollection(dataCollectionName);
-  } else if (!dataCollectionExists) {
+  } else {
     await createDataCollection(dataCollectionName);
   }
 
   // Create a collection that will store conversation history for follow-up questions
   let conversationHistoryCollectionName = CONVERSATION_COLLECTION_NAME
-  const conversationHistoryCollectionExists = await typesense.collections(conversationHistoryCollectionName).exists();
-  if (conversationHistoryCollectionExists && process.env.FORCE_REINDEX === 'true') {
-    console.log('Deleting existing conversation history collection')
-    await typesense.collections(conversationHistoryCollectionName).delete();
-    await createConversationHistoryCollection(conversationHistoryCollectionName);
-  } else if (!conversationHistoryCollectionExists) {
+  try {
+    const conversationHistoryCollectionExists = await typesense.collections(conversationHistoryCollectionName).exists();
+    console.log(`Found existing collection of ${conversationHistoryCollectionName}`);
+
+    if (process.env.FORCE_REINDEX !== 'true')
+      console.log('FORCE_REINDEX = false. Keeping existing conversation history collection...');
+    else {
+      // If FORCE_REINDEX is true, delete the existing collection
+      console.log('Deleting conversation history collection');
+      await typesense.collections(conversationHistoryCollectionName).delete();
+      await createConversationHistoryCollection(conversationHistoryCollectionName);
+    }
+  } catch (err) {
+    console.log('Conversation history collection does not exist, creating it...');
     await createConversationHistoryCollection(conversationHistoryCollectionName);
   }
 
@@ -175,8 +186,14 @@ async function indexInTypesense() {
 
   try {
     results = await typesense.conversations().models(conversationModelName).retrieve()
-    console.log('Conversation model already exists, so deleting it')
-    results = await typesense.conversations().models(conversationModelName).delete()
+
+    if (process.env.FORCE_REINDEX !== 'true') {
+      console.log('Conversation model already exists, so keeping it...');
+      return;
+    } else {
+      console.log('Conversation model already exists, so deleting it')
+      results = await typesense.conversations().models(conversationModelName).delete()
+    }
   } catch (e) {
     if(e instanceof Typesense.Errors.ObjectNotFound) {
       console.log("Conversation model not found, so creating it...")

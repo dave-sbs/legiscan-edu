@@ -42,7 +42,7 @@ export async function chat(formData: FormData) {
   const conversationModelName = 'gpt-4o-mini'
 
   let response = await typesense()
-    .collections<ResponseDocument>('eduTestRAG')
+    .collections<ResponseDocument>('billChat')
     .documents()
     .search({
       q: message,
@@ -50,6 +50,7 @@ export async function chat(formData: FormData) {
       exclude_fields: 'embedding',
       conversation_model_id: conversationModelName,
       conversation: true,
+      prefix: false,
       conversation_id:
         typeof conversationId === 'string' ? conversationId : undefined,
     });
